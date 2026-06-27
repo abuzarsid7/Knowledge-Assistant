@@ -4,3 +4,10 @@ python-dotenv
 pydantic-settings
 streamlit
 requests
+python-docx
+tiktoken
+sentence-transformers
+chromadb
+google-generativeai
+openai
+rank_bm25

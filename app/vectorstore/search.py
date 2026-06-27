@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Optional
 from app.vectorstore.chroma_db import get_or_create_collection
-
-# Importing from index to keep the constant central, or define here
 from app.vectorstore.index import COLLECTION_NAME
 
 @dataclass
@@ -10,6 +8,7 @@ class SearchResult:
     """
     Dataclass to standardize search results returned from the vector store.
     """
+    chunk_id: str
     chunk_text: str
     source: str
     page: Optional[int]
@@ -44,13 +43,15 @@ def similarity_search(query_embedding: List[float], top_k: int = 5) -> List[Sear
         return parsed_results
         
     # Unpack the first (and only) query's results
+    ids = results["ids"][0]
     docs = results["documents"][0]
     metadatas = results["metadatas"][0]
     distances = results["distances"][0]
     
-    for doc, meta, distance in zip(docs, metadatas, distances):
+    for chunk_id, doc, meta, distance in zip(ids, docs, metadatas, distances):
         parsed_results.append(
             SearchResult(
+                chunk_id=chunk_id,
                 chunk_text=doc,
                 source=meta.get("source", "Unknown"),
                 page=meta.get("page"), # Chroma will return None if it wasn't inserted
