@@ -1,5 +1,5 @@
 import uuid
-from typing import Optional
+from typing import Optional, Dict, Any
 
 from app.utils import file_utils
 from app.ingestion import loader
@@ -9,22 +9,19 @@ from app.ingestion import metadata
 from app.ingestion.embeddings import EmbeddingModel
 from app.ingestion.chunker import Chunk
 
-# We try to import the vectorstore instance. If it hasn't been built yet,
-# we create a dummy mock so the ingestion script won't crash during development.
+# Try to import the actual vectorstore. Fallback to mock for testing/initial dev.
 try:
-    from app.vectorstore.index import vectorstore
+    from app.vectorstore.index import add_chunks
 except ImportError:
-    class MockVectorStore:
-        def add(self, chunk, embedding, meta):
-            print(f"Mock add: {chunk.chunk_id}")
-    vectorstore = MockVectorStore()
+    def add_chunks(chunks, embeddings, metadatas):
+        print(f"Mock add_chunks: {len(chunks)} chunks")
 
 def run_ingestion(
     documents_dir: str, 
     chunk_size: int = 500, 
     chunk_overlap: int = 50,
     embedding_model_name: str = "all-MiniLM-L6-v2"
-):
+) -> Dict[str, Any]:
     """
     Orchestrates the document ingestion pipeline.
     
@@ -33,44 +30,48 @@ def run_ingestion(
         chunk_size: Maximum token size for each chunk.
         chunk_overlap: Number of tokens to overlap between chunks.
         embedding_model_name: Name of the sentence-transformers model to use.
+        
+    Returns:
+        Dict containing ingestion statistics (documents processed, chunks created, failures).
     """
     print(f"Starting ingestion from {documents_dir}...")
     
-    # Initialize the embedding model once for the whole ingestion run
     embedding_model = EmbeddingModel(model_name=embedding_model_name)
-    
-    # file_utils.list_documents returns a list of Path objects
     document_paths = file_utils.list_documents(documents_dir)
-    print(f"Found {len(document_paths)} documents.")
+    
+    stats = {
+        "total_documents": len(document_paths),
+        "total_chunks": 0,
+        "failed_documents": 0
+    }
     
     for path_obj in document_paths:
         path = str(path_obj)
         print(f"Processing {path}...")
         
-        # Load document (returns list of {"page_number": int|None, "raw_text": str})
         try:
             raw_pages = loader.load_document(path)
         except Exception as e:
             print(f"Failed to load {path}: {e}")
+            stats["failed_documents"] += 1
             continue
+            
+        chunks_to_add = []
+        embeddings_to_add = []
+        metadatas_to_add = []
             
         for page in raw_pages:
             raw_text = page.get("raw_text", "")
             if not raw_text.strip():
                 continue
                 
-            # 1. Clean the text
+            # Clean text
             cleaned = parser.clean_text(raw_text)
             
-            # 2. Extract structure (optional, if we want to use it later)
-            # structure = parser.extract_structure(cleaned)
-            
-            # 3. Chunk the text
-            # chunk_text returns a list of string chunks
+            # Chunk the text
             raw_chunks = chunker.chunk_text(cleaned, chunk_size=chunk_size, overlap=chunk_overlap)
             
             for index, chunk_text in enumerate(raw_chunks):
-                # Construct the Chunk dataclass
                 chunk = Chunk(
                     chunk_id=str(uuid.uuid4()),
                     text=chunk_text,
@@ -79,18 +80,21 @@ def run_ingestion(
                     chunk_index=index
                 )
                 
-                # 4. Build metadata
                 meta = metadata.build_metadata(chunk)
                 
-                # 5. Embed chunk
-                # embed_texts expects a list and returns a list of embeddings
+                # We can batch embed later, but for simplicity embed individually here
                 embeddings_list = embedding_model.embed_texts([chunk.text])
                 embedding = embeddings_list[0] if embeddings_list else []
                 
-                # 6. Add to vector store
-                if hasattr(vectorstore, "add"):
-                    vectorstore.add(chunk, embedding, meta)
-                else:
-                    print("vectorstore.add not implemented yet.")
-                    
+                chunks_to_add.append(chunk)
+                embeddings_to_add.append(embedding)
+                metadatas_to_add.append(meta)
+                
+                stats["total_chunks"] += 1
+                
+        # Batch write to vector store
+        if chunks_to_add:
+            add_chunks(chunks_to_add, embeddings_to_add, metadatas_to_add)
+            
     print("Ingestion complete.")
+    return stats

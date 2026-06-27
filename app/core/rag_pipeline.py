@@ -3,12 +3,12 @@ from typing import List, Dict, Any, Optional
 
 from app.core import memory, prompts, confidence, hybrid_search, reranker
 from app.llm import generator
-from app.services import citation_service
+from app.services.citation_service import build_citations, Citation
 
 @dataclass
 class RAGResponse:
     answer: str
-    sources: List[Dict[str, Any]]
+    sources: List[Citation]
     confidence: float
 
 def answer_question(question: str, session_id: Optional[str] = None) -> RAGResponse:
@@ -37,7 +37,7 @@ def answer_question(question: str, session_id: Optional[str] = None) -> RAGRespo
     score = confidence.compute_confidence(retrieval_scores, answer)
     
     # 7. Extract structural citations for the final API response
-    sources = citation_service.build_citations(top_chunks)
+    sources = build_citations(top_chunks)
     
     # 8. Store the interaction in memory for future turns
     if session_id:
