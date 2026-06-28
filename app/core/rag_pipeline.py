@@ -3,7 +3,8 @@ from typing import List, Dict, Any, Optional
 
 from app.core import memory, prompts, confidence, hybrid_search, reranker
 from app.llm import generator
-from app.services.citation_service import build_citations, Citation
+from app.services.citation_service import build_citations
+from app.api.schemas import Citation
 
 @dataclass
 class RAGResponse:

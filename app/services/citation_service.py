@@ -1,13 +1,6 @@
-from typing import List, Optional
-from pydantic import BaseModel
+from typing import List
+from app.api.schemas import Citation
 from app.vectorstore.search import SearchResult
-
-class Citation(BaseModel):
-    """
-    Exact API shape required for frontend citation mapping.
-    """
-    document: str
-    page: Optional[int] = None
 
 def build_citations(chunks: List[SearchResult]) -> List[Citation]:
     """

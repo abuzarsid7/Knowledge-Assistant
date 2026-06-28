@@ -1,24 +1,6 @@
 from typing import List
 from app.vectorstore.search import SearchResult
-
-# Singleton cache for the reranker model
-_reranker_model = None
-
-def get_reranker_model():
-    """
-    Returns a singleton instance of the CrossEncoder model to avoid reloading.
-    Downloads the model weights on the first run.
-    """
-    global _reranker_model
-    if _reranker_model is None:
-        try:
-            from sentence_transformers import CrossEncoder
-        except ImportError:
-            raise ImportError("Please install sentence-transformers to use the reranker.")
-            
-        # Standard, lightweight, highly effective cross-encoder for passage ranking
-        _reranker_model = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
-    return _reranker_model
+from app.dependencies import get_reranker_model
 
 def rerank(question: str, candidates: List[SearchResult], top_n: int = 5) -> List[SearchResult]:
     """

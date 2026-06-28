@@ -3,19 +3,7 @@ from typing import List
 from app.config import settings
 from app.ingestion.embeddings import EmbeddingModel
 from app.vectorstore.search import similarity_search, SearchResult
-
-# Singleton to avoid reloading the embedding model into memory on every query
-_embedding_model = None
-
-def get_embedding_model() -> EmbeddingModel:
-    """
-    Returns a singleton instance of the EmbeddingModel.
-    """
-    global _embedding_model
-    if _embedding_model is None:
-        # Depending on the config, this could be "all-MiniLM-L6-v2" or an API-based model
-        _embedding_model = EmbeddingModel(model_name=settings.EMBEDDING_MODEL_NAME)
-    return _embedding_model
+from app.dependencies import get_embedding_model
 
 def retrieve(question: str, top_k: int = 5) -> List[SearchResult]:
     """
