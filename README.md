@@ -118,6 +118,7 @@ Once ingested, the documents will be chunked, embedded, and stored in the local 
 * **Backend Framework**: `FastAPI` (Chosen for high performance, async support, and automatic OpenAPI documentation)
 * **Frontend UI**: `Streamlit` (Chosen for rapid prototyping of data applications)
 * **LLM Integrations**: `Google Gemini` & `Groq` (Support for multiple state-of-the-art LLMs via their respective APIs to generate grounded, context-aware answers)
+* **Embedding Models**: `Gemini Embeddings` or `Sentence-Transformers` (A provider-agnostic wrapper allows you to dynamically switch between remote embeddings like `models/gemini-embedding-2` and local models like `all-MiniLM-L6-v2`)
 * **Vector Database**: `ChromaDB` (Chosen because it runs entirely locally/in-memory, requiring no external infrastructure setup, perfect for this assignment)
 * **Search Strategy**: `Hybrid (Vector + BM25)` (Vector search handles semantic meaning, while BM25 handles exact keyword matches like names and acronyms)
 * **Reranker**: `Sentence-Transformers (Cross-Encoder)` (Provides deep semantic scoring between the query and candidate chunks, vastly outperforming bi-encoders for scoring)

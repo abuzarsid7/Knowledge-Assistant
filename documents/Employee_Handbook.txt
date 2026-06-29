@@ -1,0 +1,16 @@
+# Acme Corp Employee Handbook
+
+## 1. Introduction
+Welcome to Acme Corp! This handbook outlines our company policies, benefits, and code of conduct. 
+
+## 2. Remote Work Policy
+Employees are allowed to work remotely up to 3 days a week (Tuesday, Wednesday, and Thursday). Mondays and Fridays are mandatory in-office days to foster team collaboration. All remote work must be conducted within the country of employment for tax purposes.
+
+## 3. Paid Time Off (PTO)
+Full-time employees accrue 20 days of PTO per calendar year. Up to 5 unused PTO days can be rolled over to the next year. Sick leave is separate and unlimited, provided a doctor's note is submitted for absences exceeding 3 consecutive days.
+
+## 4. Hardware Allowance
+Upon joining, every employee is granted a $1,000 stipend to set up their home office. This stipend refreshes every 3 years. Receipts must be submitted via the internal expense portal (AcmeSpend) within 30 days of purchase.
+
+## 5. Contact Information
+For HR-related inquiries, please contact hr@acmecorp.com. For payroll issues, contact payroll@acmecorp.com.
