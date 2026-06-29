@@ -7,7 +7,6 @@ from app.llm.base import LLMClient
 # --- Global Shared State ---
 _embedding_model: Optional[EmbeddingModel] = None
 _llm_client: Optional[LLMClient] = None
-_reranker_model = None
 
 # --- FastAPI Dependency Providers ---
 
@@ -22,36 +21,35 @@ def get_embedding_model() -> EmbeddingModel:
     return _embedding_model
 
 
-def get_reranker_model():
-    """
-    FastAPI dependency that lazy-loads and returns a shared CrossEncoder instance.
-    Prevents reloading the reranker weights on every request.
-    """
-    global _reranker_model
-    if _reranker_model is None:
-        from sentence_transformers import CrossEncoder
-        _reranker_model = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
-    return _reranker_model
+import logging
 
+class FallbackLLMClient(LLMClient):
+    def __init__(self, primary: LLMClient, fallback: LLMClient):
+        self.primary = primary
+        self.fallback = fallback
+        self.logger = logging.getLogger(__name__)
+
+    def generate(self, prompt: str, system: Optional[str] = None) -> str:
+        try:
+            return self.primary.generate(prompt, system)
+        except Exception as e:
+            self.logger.warning(f"Primary LLM failed: {e}. Attempting fallback.")
+            return self.fallback.generate(prompt, system)
 
 def get_llm_client() -> LLMClient:
     """
-    FastAPI dependency that provides the correct LLM client (Gemini/OpenAI) 
-    based on configuration, instantiated only once per app lifecycle.
+    FastAPI dependency that provides the composite LLM client 
+    (Groq as primary, Gemini as fallback), instantiated only once.
     """
     global _llm_client
     if _llm_client is not None:
         return _llm_client
         
-    provider = settings.LLM_PROVIDER.lower()
+    from app.llm.groq_client import GroqClient
+    from app.llm.gemini import GeminiClient
     
-    if provider == "gemini":
-        from app.llm.gemini import GeminiClient
-        _llm_client = GeminiClient()
-    elif provider == "openai":
-        from app.llm.openai import OpenAIClient
-        _llm_client = OpenAIClient()
-    else:
-        raise ValueError(f"Unsupported LLM_PROVIDER: '{provider}'. Must be 'gemini' or 'openai'.")
-        
+    primary = GroqClient()
+    fallback = GeminiClient()
+    
+    _llm_client = FallbackLLMClient(primary, fallback)
     return _llm_client

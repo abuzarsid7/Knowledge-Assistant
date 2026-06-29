@@ -2,10 +2,10 @@ from typing import Literal, Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
-    LLM_PROVIDER: Literal["gemini", "openai"] = "gemini"
-    GEMINI_API_KEY: Optional[str] = None
-    OPENAI_API_KEY: Optional[str] = None
-    EMBEDDING_MODEL_NAME: str = "models/text-embedding-004"
+    LLM_PROVIDER: Literal["groq"] = "groq"
+    GOOGLE_API_KEY: Optional[str] = None
+    GROQ_API_KEY: Optional[str] = None
+    EMBEDDING_MODEL_NAME: str = "models/gemini-embedding-2"
     CHROMA_PERSIST_DIR: str = "./chroma_db"
     CHUNK_SIZE: int = 1000
     CHUNK_OVERLAP: int = 200

@@ -23,14 +23,17 @@ def handle_ask_request(request: AskRequest) -> AskResponse:
         # Call the core RAG orchestrator
         rag_result: RAGResponse = answer_question(
             question=question, 
-            session_id=request.session_id
+            session_id=request.session_id,
+            use_reranker=request.use_reranker
         )
         
         # Map core result to API response
         return AskResponse(
             answer=rag_result.answer,
             sources=rag_result.sources,
-            confidence=rag_result.confidence
+            confidence=rag_result.confidence,
+            context=rag_result.context,
+            retrieval_time=rag_result.retrieval_time
         )
         
     except ValueError as ve:

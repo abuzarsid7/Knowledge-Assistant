@@ -15,19 +15,19 @@ class GeminiClient(LLMClient):
     generator logic clean.
     """
     
-    def __init__(self, model_name: str = "gemini-1.5-pro", max_retries: int = 3, timeout: float = 60.0):
+    def __init__(self, model_name: str = "gemini-2.5-flash", max_retries: int = 3, timeout: float = 60.0):
         """
         Initializes the Gemini client.
         
         Args:
-            model_name: The Gemini model version to use (e.g. 'gemini-1.5-flash', 'gemini-1.5-pro')
+            model_name: The Gemini model version to use (e.g. 'gemini-2.5-flash', 'gemini-2.5-pro')
             max_retries: Maximum number of attempts before raising an error.
             timeout: Network timeout in seconds.
         """
-        if not settings.GEMINI_API_KEY:
-            raise ValueError("GEMINI_API_KEY is not set in config.")
+        if not settings.GOOGLE_API_KEY:
+            raise ValueError("GOOGLE_API_KEY is not set in config.")
             
-        genai.configure(api_key=settings.GEMINI_API_KEY)
+        genai.configure(api_key=settings.GOOGLE_API_KEY)
         
         self.model_name = model_name
         self.max_retries = max_retries

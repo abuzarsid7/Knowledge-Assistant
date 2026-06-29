@@ -1,8 +1,9 @@
 from fastapi import APIRouter
 
-from app.api.schemas import AskRequest, AskResponse, IngestRequest
+from app.api.schemas import AskRequest, AskResponse, IngestRequest, FeedbackRequest
 from app.services.ask_service import handle_ask_request
 from app.services.ingest_service import trigger_ingestion, IngestSummary
+from app.services.feedback_service import save_feedback
 
 router = APIRouter()
 
@@ -21,3 +22,10 @@ def ingest_endpoint(request: IngestRequest):
     Delegates all logic to ingest_service.py to keep the route thin.
     """
     return trigger_ingestion(request.directory)
+
+@router.post("/feedback")
+def feedback_endpoint(request: FeedbackRequest):
+    """
+    Receives user feedback (thumbs up/down) and saves it.
+    """
+    return save_feedback(request)

@@ -33,3 +33,27 @@ div[data-testid="stExpander"] {
         color: #ddd;
     }
 }
+
+/* Hide the Streamlit Deploy button */
+.stAppDeployButton {
+    display: none !important;
+}
+.stDeployButton {
+    display: none !important;
+}
+
+/* Force Streamlit's primary color variables to yellow so the feedback widget picks it up */
+:root, [data-testid="stApp"], [data-theme="light"], [data-theme="dark"] {
+    --primary-color: #FFC107 !important;
+}
+
+div[data-testid="stFeedbackOption"] svg {
+    color: var(--primary-color) !important;
+    fill: currentColor !important;
+}
+
+/* Also target the selected state based on standard Streamlit behavior */
+div[data-testid="stFeedbackOption"] button:active svg,
+div[data-testid="stFeedbackOption"] button:focus svg {
+    fill: #FFC107 !important;
+}

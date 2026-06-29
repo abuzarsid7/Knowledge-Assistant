@@ -3,3 +3,6 @@
 __pycache__/
 *.pyc
 vector_db/
+feedback.csv
+logs/
+settings.json

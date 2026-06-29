@@ -16,11 +16,13 @@ except ImportError:
     def add_chunks(chunks, embeddings, metadatas):
         print(f"Mock add_chunks: {len(chunks)} chunks")
 
+from app.config import settings
+
 def run_ingestion(
     documents_dir: str, 
     chunk_size: int = 500, 
     chunk_overlap: int = 50,
-    embedding_model_name: str = "all-MiniLM-L6-v2"
+    embedding_model_name: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Orchestrates the document ingestion pipeline.
@@ -29,11 +31,12 @@ def run_ingestion(
         documents_dir: The directory containing documents to ingest.
         chunk_size: Maximum token size for each chunk.
         chunk_overlap: Number of tokens to overlap between chunks.
-        embedding_model_name: Name of the sentence-transformers model to use.
+        embedding_model_name: Name of the embedding model to use. Defaults to settings.EMBEDDING_MODEL_NAME.
         
     Returns:
         Dict containing ingestion statistics (documents processed, chunks created, failures).
     """
+    embedding_model_name = embedding_model_name or settings.EMBEDDING_MODEL_NAME
     print(f"Starting ingestion from {documents_dir}...")
     
     embedding_model = EmbeddingModel(model_name=embedding_model_name)

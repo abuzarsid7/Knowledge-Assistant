@@ -1,0 +1,14 @@
+[
+  {
+    "question": "What is Abuzar Siddiqui's email address?",
+    "expected_answer_keywords": ["abuzarsid7456@gmail.com"]
+  },
+  {
+    "question": "What is the one-time project development cost for the OJS platform?",
+    "expected_answer_keywords": ["₹1,66,000","One-time project development cost","OJS platform"]
+  },
+  {
+    "question": "What does the Annual Maintenance Contract cover for the OJS platform?",
+    "expected_answer_keywords": ["ongoing support", "hosting", "maintenance", "stays online"]
+  }
+]

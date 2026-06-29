@@ -6,8 +6,7 @@ streamlit
 requests
 python-docx
 tiktoken
-sentence-transformers
 chromadb
 google-generativeai
-openai
-rank_bm25
+groq
+rank_bm25pymupdf

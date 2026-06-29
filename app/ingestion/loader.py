@@ -1,35 +1,51 @@
 import os
-import pypdf
+import fitz  # PyMuPDF
 import docx
 
 def load_pdf(path: str) -> list[dict]:
     """
-    Reads a PDF file into memory.
+    Reads a PDF file into memory using PyMuPDF.
     Returns [{"page_number": int, "raw_text": str}] per page.
     """
     pages = []
-    with open(path, "rb") as f:
-        reader = pypdf.PdfReader(f)
-        for i, page in enumerate(reader.pages):
-            text = page.extract_text()
-            # extract_text can return None or empty string, we should handle it
-            if text is not None:
-                pages.append({
-                    "page_number": i + 1,
-                    "raw_text": text
-                })
+    doc = fitz.open(path)
+    for i, page in enumerate(doc):
+        text = page.get_text()
+        if text and text.strip():
+            pages.append({
+                "page_number": i + 1,
+                "raw_text": text
+            })
     return pages
 
 def load_docx(path: str) -> list[dict]:
     """
     Reads a DOCX file into memory.
+    Extracts text from both standard paragraphs and tables.
     Since docx has no native "pages," treat the whole doc as page_number = None.
     """
     doc = docx.Document(path)
     full_text = []
+    
+    # Python-docx document elements can be paragraphs or tables.
+    # To preserve order perfectly is complex in python-docx, but iterating
+    # paragraphs then tables is often sufficient, or iterating block elements.
+    # We will extract paragraphs first, then tables.
+    
+    # 1. Extract paragraphs
     for para in doc.paragraphs:
         if para.text.strip():
-            full_text.append(para.text)
+            full_text.append(para.text.strip())
+            
+    # 2. Extract tables
+    for table in doc.tables:
+        for row in table.rows:
+            row_data = []
+            for cell in row.cells:
+                if cell.text.strip():
+                    row_data.append(cell.text.strip().replace("\n", " "))
+            if row_data:
+                full_text.append(" | ".join(row_data))
     
     text = "\n".join(full_text)
     
